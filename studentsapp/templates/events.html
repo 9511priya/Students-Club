@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% extends 'base.html' %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Events</title>
+</head>
+<body>
+{% block content %}
+<div class="container mt-3">
+    <section class="section mt-5 pb-2">
+        <!--    GET EVENTS   -->
+        <div class="container">
+            {% if user.is_superuser %}
+            <div class="row justify-content-end" style="margin-right:-120px;">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addeventform">
+                    Add Event
+                </button>
+            </div>
+            {% endif %}
+            {% if context_data %}
+            {% for data in context_data %}
+            <div class="row">
+                <div class="col-12 mt-1" style="background-color:#DFDFDF;">
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span><b>Event ID :</b> {{ data.event_id }}</span>
+                        </div>
+                        <div class="col-8">
+                            <span> <b>Event Name :</b> {{ data.event_name }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span> <b>Event Date :</b> {{ data.event_date }}</span>
+                        </div>
+                        <div class="col-8">
+                            <span> <b>Event Time :</b> {{ data.event_time }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span> <b>Event Place :</b> {{ data.event_place }} </span>
+                        </div>
+                        <div class="col-4">
+                            <span> <b>Registered Students :</b>
+                                <a href="/event_reg_stu/{{ data.event_id }}"> {{ data.registered_students }} </a></span>
+                        </div>
+                    </div>
+                    {% if user.is_superuser %}
+                    <div class="d-flex justify-content-center">
+                        <a href="#"
+                           data-toggle="modal" data-target="#addupdateform-{{forloop.counter}}">
+                            <button class="btn btn-primary">Edit</button>
+                        </a>
+                        <a href="/events_delete/{{ data.event_id }}">
+                            <button class="btn btn-danger">Delete</button>
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="d-flex justify-content-center">
+                        {% if data.is_registered %}
+                        <a href="/_deregister/{{ data.event_id }}">
+                            <button class="btn btn-danger">De register</button>
+                        </a>
+                        {% else %}
+                        <a href="/events_register/{{ data.event_id }}">
+                            <button class="btn btn-primary">Register</button>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div><!-- col-12 -->
+            </div><!-- row -->
+            {% endfor %}
+            {% endif %}
+        </div>
+        <!--    MODAL   -->
+
+        <!--EVENT ADD FORM-->
+        <div class="modal fade" id="addeventform" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom-0">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="add_events">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="event_id" aria-describedby="emailHelp"
+                                       placeholder="Event ID" name="event_id">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="event_name" aria-describedby="emailHelp"
+                                       placeholder="Event Name" name="event_name">
+                            </div>
+                            <div class="form-group">
+                                <input type="datetime-local" class="form-control" id="event_date_time"
+                                       aria-describedby="emailHelp"
+                                       placeholder="Enter Event ID" name="event_date_time">
+                            </div>
+                            <div class="form-group">
+                            <textarea class="form-control" id="event_place"
+                                      aria-describedby="emailHelp"
+                                      placeholder="Event Place" name="event_place"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-success">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--  UNIT UPDATE FORM  -->
+
+
+        {% if context_data %}
+        {% for data in context_data %}
+        <div class="modal fade" id="addupdateform-{{forloop.counter}}" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom-0">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="/events_update/{{ data.event_id }}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="edit_event_id" aria-describedby="emailHelp"
+                                       placeholder="Event ID" hidden name="event_id" value="{{ data.event_id }}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" aria-describedby="emailHelp"
+                                       placeholder="Event ID" disabled name="event_id" value="{{ data.event_id }}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="edit_event_name"
+                                       aria-describedby="emailHelp"
+                                       placeholder="Event Name" name="event_name" value="{{ data.event_name }}">
+                            </div>
+                            <div class="form-group">
+                                <input type="datetime-local" class="form-control" id="edit_event_date_time"
+                                       aria-describedby="emailHelp" name="event_date_time"
+                                       value="{{ data.event_date_time }}">
+                            </div>
+                            <div class="form-group">
+                            <textarea class="form-control" id=edit_"event_place"
+                                      aria-describedby="emailHelp" placeholder="Event Place"
+                                      name="event_place">{{ data.event_place }}</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-success">Update</button>
+                            <button type="clear" class="btn btn-danger">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
+</body>
+</html>

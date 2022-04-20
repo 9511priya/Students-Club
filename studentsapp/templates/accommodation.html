@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% extends 'base.html' %}
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Events</title>
+</head>
+<body>
+{% block content %}
+<div class="container mt-3">
+    <section class="section mt-5 pb-2">
+        <!--    GET EVENTS   -->
+        <div class="container">
+            <div class="row justify-content-end" style="margin-right:-120px;">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addeventform">
+                    Add Accommodation
+                </button>
+            </div>
+            {% if context_data %}
+            {% for data in context_data %}
+            <div class="row">
+                <div class="col-12 mt-1" style="background-color:#DFDFDF;">
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span><b>State :</b> {{ data.state }}</span>
+                        </div>
+                        <div class="col-8">
+                            <span> <b>City :</b> {{ data.city }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span> <b>Gender :</b> {{ data.gender_type }}</span>
+                        </div>
+                        <div class="col-8">
+                            <span> <b>Available Count :</b> {{ data.availability_count }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span> <b>Contact :</b> {{ data.contact }} </span>
+                        </div>
+                        <div class="col-4">
+                            {% if data.available %}
+                            <span style="color:green;"> Available</span>
+                            {% else %}
+                            <span style="color:red;"> Not Available </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span> <b>Address 1 :</b> {{ data.address1 }}</span>
+                        </div>
+                        <div class="col-8">
+                            <span> <b>Address 2 :</b> {{ data.address2 }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex p-2">
+                        <div class="col-4">
+                            <span> <b>Posted By :</b> {{ data.user_name }}</span>
+                        </div>
+                    </div>
+                    {% if request.user.username == data.user_name %}
+                    <div class="d-flex justify-content-center">
+                        <a href="#"
+                           data-toggle="modal" data-target="#addupdateform-{{forloop.counter}}">
+                            <button class="btn btn-primary">Edit</button>
+                        </a>
+                        <a href="/acc_delete/{{ data.acc_id }}">
+                            <button class="btn btn-danger">Delete</button>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div><!-- col-12 -->
+            </div><!-- row -->
+            {% endfor %}
+            {% endif %}
+        </div>
+        <!--    MODAL   -->
+
+        <!--EVENT ADD FORM-->
+        <div class="modal fade" id="addeventform" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom-0">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="add_accommodation">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="city" aria-describedby="emailHelp"
+                                       placeholder="City" name="city">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="state" aria-describedby="emailHelp"
+                                       placeholder="State" name="state">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="contact" aria-describedby="emailHelp"
+                                       placeholder="Contact" name="contact">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="Availability" aria-describedby="emailHelp"
+                                       placeholder="Availability" name="availability_count">
+                            </div>
+                            <div class="form-group">
+                                <select class="form-group" name="gender_type">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="any">Any</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                            <textarea class="form-control" id="address1"
+                                      aria-describedby="emailHelp"
+                                      placeholder="Address 1" name="address1"></textarea>
+                            </div>
+                            <div class="form-group">
+                            <textarea class="form-control" id="address2"
+                                      aria-describedby="emailHelp"
+                                      placeholder="Address 2" name="address2"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-success">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--  UNIT UPDATE FORM  -->
+
+
+        {% if context_data %}
+        {% for data in context_data %}
+        <div class="modal fade" id="addupdateform-{{forloop.counter}}" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-bottom-0">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" enctype="multipart/form-data" action="/acc_update/{{ data.acc_id }}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="edit_event_id" aria-describedby="emailHelp"
+                                       placeholder="City" name="city" value="{{ data.city }}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" aria-describedby="emailHelp"
+                                       placeholder="State" name="state" value="{{ data.state }}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" aria-describedby="emailHelp"
+                                       placeholder="Contact" name="contact" value="{{ data.contact }}">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" class="form-control" id="availability_count"
+                                       aria-describedby="emailHelp" placeholder="Availability Count"
+                                       name="availability_count" value="{{ data.availability_count }}">
+                            </div>
+                            <div class="form-group">
+                                <select name="gender_type">
+                                    {% if data.gender_type == "male" %}
+                                    <option value="male" selected>Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="any">Any</option>
+                                    {% elif data.gender_type == "female" %}
+                                    <option value="male">Male</option>
+                                    <option value="any">Any</option>
+                                    <option value="female" selected>Female</option>
+                                    {% elif data.gender_type == "any" %}
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="any" selected>Any</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                            <textarea class="form-control"
+                                      aria-describedby="emailHelp" placeholder="Address 1"
+                                      name="address1">{{ data.address1 }}</textarea>
+                            </div>
+                            <div class="form-group">
+                            <textarea class="form-control"
+                                      aria-describedby="emailHelp" placeholder="Address 2"
+                                      name="address2">{{ data.address2 }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="switch">
+                                    {% if data.available %}
+                                    <input type="checkbox" name="available" checked data-toggle="toggle" data-onstyle="primary">
+                                    {% else %}
+                                    <input type="checkbox" name="available" data-toggle="toggle" data-onstyle="primary">
+                                    {% endif %}
+                                    <span class="slider round"></span>
+                                </label></div>
+                        </div>
+                        <div class="modal-footer border-top-0 d-flex justify-content-center">
+                            <button type="submit" class="btn btn-success">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
+</body>
+</html>
